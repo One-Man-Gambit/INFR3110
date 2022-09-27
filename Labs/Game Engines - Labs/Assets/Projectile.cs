@@ -26,9 +26,12 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter(Collider other) 
     {
         if (other.gameObject.GetComponent<HealthScript>() != null) 
-        {
-            other.gameObject.GetComponent<HealthScript>().DealDamage(1.0f);
-            Destroy(gameObject);
+        {   
+            HealthScript health = other.gameObject.GetComponent<HealthScript>();
+            if (!health.IsDead) {
+                health.DealDamage(1.0f);
+                Destroy(gameObject);
+            }            
         }
     }
 }

@@ -8,6 +8,8 @@ using TMPro;
 public class UI : MonoBehaviour
 {
     public TMP_Text pointDisplay;
+    public TMP_Text killDisplay;
+    public TMP_Text healthDisplay;
 
     private static UI instance;
     public static UI GetInstance() {
@@ -25,5 +27,7 @@ public class UI : MonoBehaviour
     public void UpdateUI() 
     {
         pointDisplay.text = "Points = " + GameManager.GetInstance().Score;
+        killDisplay.text = "Kills = " + GameManager.GetInstance().Kills;
+        healthDisplay.text = "Health = " + GameManager.GetInstance().pcRef.health.CurrentHealth;
     }
 }

@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public CharacterWithGunActions inputAction;
     public Rigidbody rigid;
     public GameObject cameraPivot;
+    public HealthScript health;
     
     [Header("Motion")]
     public Vector2 v_Movement;
@@ -52,14 +53,23 @@ public class PlayerController : MonoBehaviour
 
         rigid = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
-    
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
+    private void Start() 
+    {
+        GameManager.GetInstance().pcRef = this;
+        health.OnHit += OnHit;
+        health.OnKilled += OnDeath;
+    }
+
     private void Update() 
     {
+        // Don't do anything if dead
+        if (health.IsDead) return;
+
         transform.Translate(Vector3.forward * v_Movement.y * f_MoveSpeed * Time.deltaTime, Space.Self);
         transform.Translate(Vector3.right * v_Movement.x * f_MoveSpeed * Time.deltaTime, Space.Self);
         
@@ -90,8 +100,6 @@ public class PlayerController : MonoBehaviour
 
     private void Jump() 
     {
-        Debug.Log("Jump");
-
         if (b_IsGrounded) 
         {
             rigid.AddForce(transform.up * f_JumpForce, ForceMode.Impulse);            
@@ -103,12 +111,14 @@ public class PlayerController : MonoBehaviour
 
     private void Shoot() 
     {
-        Debug.Log("Shoot");
-
-        // Instantiate Projectile
-        GameObject newProjectileObj = Instantiate(projectilePrefab, projectileOrigin.position, Quaternion.identity); 
-        Rigidbody rbProjectile = newProjectileObj.GetComponent<Rigidbody>();
-        rbProjectile.AddForce(transform.forward * 500.0f);
+        if (b_IsGrounded) 
+        {
+            // Instantiate Projectile
+            GameObject newProjectileObj = Instantiate(projectilePrefab, projectileOrigin.position, Quaternion.identity); 
+            Rigidbody rbProjectile = newProjectileObj.GetComponent<Rigidbody>();
+            rbProjectile.AddForce(transform.forward * 500.0f);
+        }
+        
     }
 
     private IEnumerator DelayGroundCheck() 
@@ -125,6 +135,19 @@ public class PlayerController : MonoBehaviour
             GameManager.GetInstance().AddPoint();
             Destroy(other.gameObject);
         }
+    }
+
+    private void OnHit() 
+    {
+        animator.SetTrigger("OnHit");
+        UI.GetInstance().UpdateUI();
+    }
+
+    private void OnDeath() 
+    {        
+        // Trigger Animation Events
+        animator.SetBool("IsDead", true);
+        animator.SetTrigger("OnDeath");
     }
 
 }

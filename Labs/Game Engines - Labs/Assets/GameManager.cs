@@ -17,10 +17,19 @@ public class GameManager
     // ========================================================
     
     public int Score = 0;
+    public int Kills = 0;
+
+    public PlayerController pcRef;
 
     public void AddPoint() 
     {
         Score += 1;
+        UI.GetInstance().UpdateUI();
+    }
+
+    public void AddKill() 
+    {
+        Kills += 1;
         UI.GetInstance().UpdateUI();
     }
 }
